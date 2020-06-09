@@ -9,7 +9,7 @@ class Book {
 
 class UI {
 
-    AddBooktoList(book) {
+    AddBookToList(book) {
 
         var list = document.getElementById('book-list');
 
@@ -43,12 +43,13 @@ class UI {
         }, 3000);
     }
 
-    deleteBook(e) {
+    deleteBook(target) {
+        if(target.classList.contains('fas') && confirm('Are you sure?')) {
+          target.parentElement.parentElement.parentElement.remove();
 
-        if(e.target.className === 'delete') {
-            e.target.parentElement.parentElement.remove();
+          this.showAlertMessage('The Book Was Delete', 'success');
         }
-    }
+      }
 
     clearFields() {
         document.getElementById('title') .value = '';
@@ -56,6 +57,50 @@ class UI {
         document.getElementById('number').value = '';
     }
 }
+
+class LSrorage {
+    // first
+    static getBooksFromLS() {
+
+        var books;
+
+        if(localStorage.getItem('books') === null) {
+            books = [];
+        } else {
+            books = JSON.parse(localStorage.getItem('books'));
+        }
+            return books;
+    }
+    //third
+    static displayBooksFromLS() {
+
+        var books = LSrorage.getBooksFromLS();
+
+        books.forEach(function(book) {
+
+            var ui = new UI;
+
+            ui.AddBookToList(book);
+        });
+    }
+    //second
+    static addBookToLS(book) {
+
+        var books = LSrorage.getBooksFromLS();
+
+        books.push(book);
+
+        localStorage.setItem('books', JSON.stringify(book));
+    }
+    //last
+    static deleteBookFromLS() {
+
+    }
+
+}
+
+    document.addEventListener('DOMContentLoaded', LSrorage.displayBooksFromLS);
+
     document.getElementById('form-submit').addEventListener('submit', function(e) {
 
     var title  = document.getElementById('title') .value;
@@ -70,7 +115,9 @@ class UI {
      
         ui.showAlertMessage('You must fill all fields', 'error')
     } else {
-        ui.AddBooktoList(book);
+        ui.AddBookToList(book);
+
+        LSrorage.addBookToLS(book)
 
         ui.showAlertMessage('Book Added Succesfully', 'success');
 
@@ -82,11 +129,7 @@ class UI {
 
 document.getElementById('book-list').addEventListener('click', function(e) {
 
-    var ui = new UI();
-
-    ui.deleteBook(e);
-
-    ui.showAlertMessage('The Book is Successfully Delete', "success");
-
-    e.preventDefault();
-});
+    const ui = new UI();
+  
+    ui.deleteBook(e.target);
+  });
